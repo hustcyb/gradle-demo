@@ -1,0 +1,104 @@
+// 定义默认任务
+defaultTasks 'helloGradle'
+
+// 第一个构建任务
+task helloWorld {
+	doLast {
+		println 'Hello, World!'
+	}
+}
+
+// 快速定义任务
+task hello << {
+	print 'Hello, '
+}
+
+// 代码即脚本
+task upper << {
+	String text = "hello, world!"
+	println "orginal: " + text
+	println "upper case: " + text.toUpperCase()
+}
+
+// 任务依赖
+task helloGradle(dependsOn: hello) << {
+	println "Gradle!"
+}
+
+// 复制文件
+task copyFile(type: Copy) {
+	from 'xml'
+	into 'destination'
+}
+
+// 动态任务
+4.times {  counter ->
+	task "task$counter" << {
+		println "I'm task $counter"
+	}
+}
+
+// 增加依赖
+task1.dependsOn task0, task2
+
+// 增加任务行为
+task action << {
+	println 'Hello, Gradle!'
+}
+
+action.doFirst {
+	println 'I am first'
+}
+
+action.doLast {
+	println 'I am last'
+}
+
+action << {
+	println 'I am the last'
+}
+
+// 任务属性
+task property << {
+	println 'Helo, Gradle!'
+}
+
+property.doLast {
+	println "Greetings from the $property.name task."
+}
+
+// 自定义属性
+task customerProperty {
+	ext.number = 100
+}
+
+customerProperty.doLast {
+	println "number: $customerProperty.number"
+}
+
+// 抽取方法
+task loadfile << {
+	fileList('xml').each { File file -> 
+		println file.name
+	}
+}
+
+File[] fileList(String dir) {
+	file(dir).listFiles({ file -> file.isFile() } as FileFilter).sort()
+}
+
+task distribution << {
+	println "We build the zip with version = $version"
+}
+
+task release(dependsOn: distribution) << {
+	println "We release now"
+}
+
+gradle.taskGraph.whenReady { taskGraph ->
+	if (taskGraph.hasTask(release)) {
+		version = '1.0'
+	} else {
+		version = '1.0-SNAPSHOT'
+	}
+}
